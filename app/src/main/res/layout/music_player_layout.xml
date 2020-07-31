@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/colorPrimary"
             android:textSize="40sp"
-            android:transitionName="nameTrans"/>
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/song_author_tv"
@@ -36,8 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:textColor="@color/colorPrimary"
-            android:textSize="30sp"
-            android:transitionName="authorTrans"/>
+            android:textSize="30sp" />
 
     </LinearLayout>
 

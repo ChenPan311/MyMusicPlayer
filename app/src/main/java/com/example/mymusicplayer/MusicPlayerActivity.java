@@ -1,7 +1,9 @@
 package com.example.mymusicplayer;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -19,9 +21,9 @@ public class MusicPlayerActivity extends AppCompatActivity {
         setContentView(R.layout.music_player_layout);
 
         ImageButton back_btn = findViewById(R.id.back_btn);
-        ImageView album_cover = findViewById(R.id.song_cover_iv);
-        TextView song_name = findViewById(R.id.song_name_tv);
-        TextView author_name = findViewById(R.id.song_author_tv);
+        final ImageView album_cover = findViewById(R.id.song_cover_iv);
+        final TextView song_name = findViewById(R.id.song_name_tv);
+        final TextView author_name = findViewById(R.id.song_author_tv);
 
         Song song = (Song) getIntent().getSerializableExtra("song");
         song_name.setText(song.getName());
@@ -31,8 +33,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
         back_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MusicPlayerActivity.this, MainActivity.class);
-                startActivity(intent);
+                onBackPressed();
             }
         });
     }
