@@ -13,6 +13,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.database.Observable;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -150,48 +152,52 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void OnSongClicked(View view, int position) {
 
-                final int NOTIF_ID=1;
-
-                NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-                String channelId = "channel_id";
-                String channelName = "channel_name";
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    NotificationChannel channel = new NotificationChannel(channelId,channelName,NotificationManager.IMPORTANCE_HIGH);
-                    manager.createNotificationChannel(channel);
-                }
+//                final int NOTIF_ID=1;
+//
+//                NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//
+//                String channelId = "channel_id";
+//                String channelName = "channel_name";
+//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//                    NotificationChannel channel = new NotificationChannel(channelId,channelName,NotificationManager.IMPORTANCE_HIGH);
+//                    manager.createNotificationChannel(channel);
+//                }
 
 
                 Intent intent = new Intent(MainActivity.this,MusicPlayerActivity.class);
-
+                Intent service = new Intent(MainActivity.this,MusicService.class);
                 Song song = songs.get(position);
-                intent.putExtra("song",song);
+                service.putExtra("position",position);
+                service.putExtra("songs_list",songs);
+                service.putExtra("command","new_instance");
+
                 intent.putExtra("position",position);
                 intent.putExtra("songs_list",songs);
+                intent.putExtra("command","new_instance");
                 //intent.putExtra("command","new_instance");
 
-                PendingIntent playPendingIntent = PendingIntent.getActivity(MainActivity.this,0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-                RemoteViews remoteViews = new RemoteViews(getPackageName(),R.layout.music_notification);
-                remoteViews.setOnClickPendingIntent(R.id.play_pause_notif,playPendingIntent);
-                remoteViews.setTextViewText(R.id.song_name_notif,song.getName());
-                remoteViews.setTextViewText(R.id.song_author_notif,song.getAuthor_name());
+//                PendingIntent playPendingIntent = PendingIntent.getActivity(MainActivity.this,0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+///               RemoteViews remoteViews = new RemoteViews(getPackageName(),R.layout.music_notification);
+//                remoteViews.setOnClickPendingIntent(R.id.play_pause_notif,playPendingIntent);
+//                remoteViews.setTextViewText(R.id.song_name_notif,song.getName());
+//                remoteViews.setTextViewText(R.id.song_author_notif,song.getAuthor_name());
 
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this,channelId);
-                builder.setSmallIcon(R.drawable.logo);
-                builder.setCustomContentView(remoteViews);
-                builder.setOnlyAlertOnce(true);
-                Notification notification = builder.build();
+//                NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this,channelId);
+//                builder.setSmallIcon(R.drawable.logo);
+//                builder.setCustomContentView(remoteViews);
+//                Notification notification = builder.build();
                 //-------loading cover image into the notification----//
-                NotificationTarget notificationTarget = new NotificationTarget(
-                        MainActivity.this,
-                        R.id.cover_iv,
-                        remoteViews,
-                        notification,
-                        NOTIF_ID);
-                Glide.with(MainActivity.this).asBitmap().load(song.getAlbum_cover()).into(notificationTarget);
+//                NotificationTarget notificationTarget = new NotificationTarget(
+//                        MainActivity.this,
+//                        R.id.cover_iv,
+//                        remoteViews,
+//                        notification,
+//                        NOTIF_ID);
+//                Glide.with(MainActivity.this).asBitmap().load(song.getAlbum_cover()).into(notificationTarget);
+//
+//                manager.notify(NOTIF_ID,notification);
 
-                manager.notify(NOTIF_ID,notification);
-
+                startService(service);
                 Pair pair = new Pair<View,String>(view.findViewById(R.id.song_cover_iv),"coverTrans");
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                     ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this,pair);

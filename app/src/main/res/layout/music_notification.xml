@@ -5,6 +5,7 @@
     android:background="@color/colorAccent"
     android:padding="3dp">
 
+
     <ImageView
         android:id="@+id/cover_iv"
         android:layout_width="100dp"
@@ -12,6 +13,13 @@
         android:layout_centerVertical="true"
         android:layout_marginStart="10dp"
         android:padding="3dp" />
+    <ImageView
+        android:id="@+id/close_notification"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/ic_baseline_cancel_24"
+        android:tint="@color/colorPrimaryDark" />
 
     <TextView
         android:id="@+id/song_name_notif"
@@ -37,9 +45,9 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_below="@id/song_author_notif"
-        android:layout_toEndOf="@id/cover_iv"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
+        android:layout_toEndOf="@id/cover_iv"
         android:background="@color/colorPrimaryDark" />
 
     <LinearLayout
@@ -56,9 +64,9 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="@android:color/transparent"
-            android:tint="@color/colorPrimaryDark"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_notif_prev" />
+            android:src="@drawable/ic_notif_prev"
+            android:tint="@color/colorPrimaryDark" />
 
         <ImageButton
             android:id="@+id/play_pause_notif"
@@ -68,17 +76,17 @@
             android:layout_marginEnd="30dp"
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
-            android:tint="@color/colorPrimaryDark"
-            android:src="@drawable/ic_notif_play" />
+            android:src="@drawable/ic_notif_play"
+            android:tint="@color/colorPrimaryDark" />
 
         <ImageButton
             android:id="@+id/next_notif"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="@android:color/transparent"
-            android:tint="@color/colorPrimaryDark"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_notif_next" />
+            android:src="@drawable/ic_notif_next"
+            android:tint="@color/colorPrimaryDark" />
 
 
     </LinearLayout>
