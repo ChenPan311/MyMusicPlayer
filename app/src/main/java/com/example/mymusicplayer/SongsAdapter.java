@@ -3,6 +3,7 @@ package com.example.mymusicplayer;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,13 +17,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHolder> {
 
     private Context context;
-    private List<Song> songs;
+    private ArrayList<Song> songs;
     private MySongListener listener;
+    // variable to track event time
+    private long mLastClickTime = 0;
 
     //-----------View Holder-----------//
     public class SongViewHolder extends RecyclerView.ViewHolder {
@@ -47,6 +51,11 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
                 @Override
                 public void onClick(View v) {
                     if(listener!=null){
+                        // Preventing multiple clicks, using threshold of 1 second
+                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                            return;
+                        }
+                        mLastClickTime = SystemClock.elapsedRealtime();
                         listener.OnSongClicked(v,getAdapterPosition());
                     }
                 }
@@ -66,7 +75,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
 //-----------MySongInterface interface-----------//
 
 
-    public SongsAdapter(Context context, List<Song> songs) {
+    public SongsAdapter(Context context, ArrayList<Song> songs) {
         this.context = context;
         this.songs = songs;
     }

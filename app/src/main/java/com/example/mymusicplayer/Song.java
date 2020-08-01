@@ -1,7 +1,10 @@
 package com.example.mymusicplayer;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
 
-public class Song implements Serializable {
+public class Song implements Parcelable {
     private String name;
     private String author_name;
     private int song_duration;
@@ -14,6 +17,42 @@ public class Song implements Serializable {
         this.song_duration = song_duration;
         this.album_cover = album_cover;
         this.song_link = song_link;
+    }
+
+    protected Song(Parcel in) {
+        name = in.readString();
+        author_name = in.readString();
+        song_duration = in.readInt();
+        album_cover = in.readString();
+        song_link = in.readString();
+    }
+
+    public static final Creator<Song> CREATOR = new Creator<Song>() {
+        @Override
+        public Song createFromParcel(Parcel in) {
+            return new Song(in);
+        }
+
+        @Override
+        public Song[] newArray(int size) {
+            return new Song[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeString(author_name);
+        dest.writeInt(song_duration);
+        dest.writeString(album_cover);
+        dest.writeString(song_link);
+
+
     }
 
     public String getName() {
