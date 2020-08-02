@@ -15,4 +15,18 @@
 
     </androidx.recyclerview.widget.RecyclerView>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_Btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:fabSize="auto"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="20dp"
+        android:backgroundTint="@color/colorAccent"
+        android:src="@drawable/ic_add_btn"
+        android:tint="@color/colorPrimaryDark"
+        />
+
 </RelativeLayout>

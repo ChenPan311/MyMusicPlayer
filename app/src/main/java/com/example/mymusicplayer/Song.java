@@ -1,8 +1,7 @@
 package com.example.mymusicplayer;
+
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import java.io.Serializable;
 
 public class Song implements Parcelable {
     private String name;
@@ -11,10 +10,10 @@ public class Song implements Parcelable {
     private String album_cover;
     private String song_link;
 
-    public Song(String name, String author_name, int song_duration, String album_cover, String song_link) {
+    public Song(String name, String author_name, String album_cover, String song_link) {
         this.name = name;
         this.author_name = author_name;
-        this.song_duration = song_duration;
+        this.song_duration = 0;
         this.album_cover = album_cover;
         this.song_link = song_link;
     }
@@ -94,4 +93,5 @@ public class Song implements Parcelable {
     public void setSong_link(String song_link) {
         this.song_link = song_link;
     }
+
 }

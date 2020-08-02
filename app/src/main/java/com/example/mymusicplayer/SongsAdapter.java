@@ -2,6 +2,7 @@ package com.example.mymusicplayer;
 
 
 import android.content.Context;
+import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
@@ -100,5 +101,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
     public int getItemCount() {
         return songs.size();
     }
+
 
 }
