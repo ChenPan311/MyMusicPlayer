@@ -6,9 +6,9 @@
     android:padding="10dp">
 
     <RelativeLayout
+        android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/header">
+        android:layout_height="wrap_content">
 
         <ImageButton
             android:id="@+id/back_btn"
@@ -21,11 +21,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="25sp"
-            android:text="Now Playing"
+            android:layout_centerHorizontal="true"
             android:gravity="center"
+            android:text="Now Playing"
             android:textColor="@color/colorAccent"
-            android:layout_centerHorizontal="true"/>
+            android:textSize="25sp" />
 
 
     </RelativeLayout>
@@ -72,15 +72,33 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/song_cover_iv"
         android:layout_marginTop="20dp"
-        android:background="@color/colorPrimary"
         android:orientation="vertical"
         android:padding="10dp">
 
-        <ProgressBar
+        <SeekBar
             android:id="@+id/song_progress"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/total_duration_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/song_progress"
+            android:layout_marginTop="5dp"
+            android:layout_alignParentEnd="true"
+            android:textSize="15sp"
+            android:textColor="@color/colorPrimary"/>
+
+        <TextView
+            android:id="@+id/current_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/song_progress"
+            android:layout_marginTop="5dp"
+            android:textSize="15sp"
+            android:textColor="@color/colorPrimary"/>
 
     </RelativeLayout>
 
@@ -110,7 +128,7 @@
             android:layout_margin="20dp"
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_play_btn"
+            android:src="@drawable/ic_pause_btn"
             android:tint="@color/colorPrimary" />
 
         <ImageButton
