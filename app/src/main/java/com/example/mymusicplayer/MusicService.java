@@ -1,5 +1,6 @@
 package com.example.mymusicplayer;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -9,12 +10,14 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.RemoteViews;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -29,11 +32,12 @@ import java.util.ArrayList;
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
     private final IBinder binder = new LocalBinder();
     public static boolean isRunnig;
+    public static int sPosition;
+    private Activity context;
 
     private MediaPlayer mediaPlayer = new MediaPlayer();
     private NotificationManager manager;
     private ArrayList<Song> songs;
-    public static int sPosition;
     private int duration;
 
     private ImageButton playPauseBtn;
@@ -41,6 +45,13 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private TextView songAuthor;
     private ImageView songCover;
     private SongsAdapter adapter;
+    private SeekBar seekBar;
+
+    private Handler mHandler = new Handler();
+    private Runnable mRunnable;
+
+    private TextView songTotalDuration_tv;
+    private TextView songCurrentDuration_tv;
 
     private RemoteViews remoteViews;
     private Notification notification;
@@ -69,6 +80,18 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaPlayer.reset();
         isRunnig=true;
+
+        mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if(mediaPlayer != null){
+                    int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
+                    seekBar.setProgress(mCurrentPosition);
+                    songCurrentDuration_tv.setText(createTimeLabel(mediaPlayer.getCurrentPosition()));
+                }
+                mHandler.postDelayed(this, 1000);
+            }
+        };
 
         Log.d("service","On Create Service!");
 
@@ -127,8 +150,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         String command = intent.getStringExtra("command");
         switch (command) {
             case "new_instance":
-                setUpSong(intent);
-                startForeground(NOTIF_ID, notification);
+                    setUpSong(intent);
+                    startForeground(NOTIF_ID, notification);
                 break;
             case "songs_update":
                 songs = intent.getParcelableArrayListExtra("songs_list");
@@ -187,24 +210,38 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             if (mediaPlayer.isPlaying())
                 mediaPlayer.stop();
         mediaPlayer.release();
+        mHandler.removeCallbacks(mRunnable);
         isRunnig = false;
     }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
         playSong(true);
+        setUpNotificationData(remoteViews, songs.get(sPosition), notification);
+        setSongView(songName, songAuthor, songCover);
     }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
         duration = mediaPlayer.getDuration();
         mediaPlayer.start();
-        //setPlayPauseBtnImage(playPauseBtn);
+
+        songTotalDuration_tv.setText(createTimeLabel(duration));
+        seekBar.setMax(duration/1000);
+        playPauseBtn.setImageResource(R.drawable.ic_pause_btn);
+        playPauseBtn.setClickable(true);
+        remoteViews.setImageViewResource(R.id.play_pause_notif, R.drawable.ic_notif_pause);
+        manager.notify(NOTIF_ID,notification);
+        runDurationOnSeekBar();
+
+
 
     }
 
     public void setUpSong(Intent intent) {
-        mediaPlayer.stop();
+        if(mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+        }
         songs = intent.getParcelableArrayListExtra("songs_list");
         sPosition = intent.getIntExtra("position", 0);
         setUpNotificationData(remoteViews, songs.get(sPosition), notification);
@@ -248,17 +285,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
-    public int getCurrentPosition() {
-        return sPosition;
-    }
 
     public ArrayList<Song> getSongs() {
         return songs;
     }
 
-    public int getSongDuration() {
-        return duration;
-    }
 
     public void updateSongs(ArrayList<Song> songs) {
         this.songs = songs;
@@ -268,13 +299,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         this.adapter = songsAdapter;
     }
 
-    public void setPlayPauseBtnImage(ImageButton playPauseBtn) {
-        if (mediaPlayer.isPlaying()) {
-            playPauseBtn.setImageResource(R.drawable.ic_pause_btn);
-        } else {
-            playPauseBtn.setImageResource(R.drawable.ic_play_btn);
-        }
-    }
 
     public void setSongView(TextView nameSong, TextView authorSong, ImageView songCover) {
         nameSong.setText(songs.get(sPosition).getName());
@@ -282,10 +306,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         Glide.with(this).load(songs.get(sPosition).getAlbum_cover()).into(songCover);
     }
 
-
-    public boolean isPlaying() {
-        return mediaPlayer.isPlaying();
-    }
 
     public void setPlayPauseBtn(ImageButton ppBtn) {
         this.playPauseBtn = ppBtn;
@@ -301,5 +321,57 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public void setSongAuthor(TextView songAuthor) {
         this.songAuthor = songAuthor;
+    }
+
+    public void setSongTotalDuration_tv(TextView songTotalDuration_tv){
+        this.songTotalDuration_tv = songTotalDuration_tv;
+    }
+
+    public void setCurrentDuration_tv(TextView songCurrentDuration){
+        this.songCurrentDuration_tv = songCurrentDuration;
+    }
+
+    public void setSeekBar(SeekBar seekBar){
+        this.seekBar = seekBar;
+    }
+
+    public void setContext(Activity activity){
+        this.context = activity;
+    }
+
+    public String createTimeLabel(int duration) {
+        String timeLabel = "";
+        int min = duration / 1000 / 60;
+        int sec = duration / 1000 % 60;
+        if (min < 10)
+            timeLabel += "0" + min + ":";
+        else timeLabel += min + ":";
+        if (sec < 10)
+            timeLabel += "0" + sec;
+        else timeLabel += sec;
+        return timeLabel;
+
+    }
+
+    public void runDurationOnSeekBar(){
+        context.runOnUiThread(mRunnable);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(mediaPlayer != null && fromUser){
+                    mediaPlayer.seekTo(progress * 1000);
+                    songCurrentDuration_tv.setText(createTimeLabel(mediaPlayer.getCurrentPosition()));
+                }
+            }
+        });
     }
 }

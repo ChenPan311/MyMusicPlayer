@@ -128,7 +128,8 @@
             android:layout_margin="20dp"
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_pause_btn"
+            android:clickable="false"
+            android:src="@drawable/ic_play_btn"
             android:tint="@color/colorPrimary" />
 
         <ImageButton

@@ -39,6 +39,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
 
         public SongViewHolder(@NonNull View itemView) {
             super(itemView);
+            itemView.setClickable(true);
             cardView = itemView.findViewById(R.id.song_cardview);
             album_cover=itemView.findViewById(R.id.song_cover_iv);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

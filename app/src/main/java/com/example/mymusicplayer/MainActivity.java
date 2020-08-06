@@ -94,36 +94,29 @@ public class MainActivity extends AppCompatActivity {
         songsAdapter = new SongsAdapter(this, songs);
         recyclerView.setAdapter(songsAdapter);
 
-    }
-
-
-    @Override
-    protected void onStart() {
-//        Intent intent = new Intent(this,MusicService.class);
-//        bindService(intent,connection, Context.BIND_AUTO_CREATE);
-
         songsAdapter.setListener(new SongsAdapter.MySongListener() {
             @Override
             public void OnSongClicked(View view, int position) {
-
-                RelativeLayout layout = view.findViewById(R.id.content_layout);
-
-                Intent intent = new Intent(MainActivity.this, MusicPlayerActivity.class);
                 Intent service = new Intent(MainActivity.this, MusicService.class);
-                Song song = songs.get(position);
+                if (MusicService.isRunnig && position == MusicService.sPosition) {
+                    service.putExtra("same_song", true);
+                }
                 service.putExtra("position", position);
                 service.putExtra("songs_list", songs);
                 service.putExtra("command", "new_instance");
 
-                intent.putExtra("position", position);
-                intent.putExtra("songs_list", songs);
 
                 startService(service);
+                Intent intent = new Intent(MainActivity.this, MusicPlayerActivity.class);
+                intent.putExtra("position", position);
+                intent.putExtra("songs_list", songs);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 Pair pair = new Pair<View, String>(view.findViewById(R.id.song_cover_iv), "coverTrans");
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                     ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, pair);
                     startActivity(intent, options.toBundle());
-                }
+                } else
+                    startActivity(intent);
             }
         });
 
@@ -175,8 +168,7 @@ public class MainActivity extends AppCompatActivity {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
-        Log.d("state", "on start main now");
-        super.onStart();
+
     }
 
 
@@ -196,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
+
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             Log.d("state", "inside service disConnected!");
@@ -208,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
 //        unbindService(connection);
         mBound = false;
-
         Log.d("state", "on stop main now");
         super.onStop();
     }
@@ -366,7 +358,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     public void showAlertDialog() {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this, R.style.Theme_MaterialComponents_Dialog_Alert);
         View view = getLayoutInflater().inflate(R.layout.add_song_dialog, null);
@@ -450,6 +441,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
 }
