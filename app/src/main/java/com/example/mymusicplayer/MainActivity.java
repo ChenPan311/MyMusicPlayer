@@ -104,19 +104,15 @@ public class MainActivity extends AppCompatActivity {
                 service.putExtra("position", position);
                 service.putExtra("songs_list", songs);
                 service.putExtra("command", "new_instance");
-
-
                 startService(service);
+//                bindService(service,connection,BIND_AUTO_CREATE);
+
                 Intent intent = new Intent(MainActivity.this, MusicPlayerActivity.class);
                 intent.putExtra("position", position);
                 intent.putExtra("songs_list", songs);
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                Pair pair = new Pair<View, String>(view.findViewById(R.id.song_cover_iv), "coverTrans");
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, pair);
-                    startActivity(intent, options.toBundle());
-                } else
-                    startActivity(intent);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             }
         });
 
@@ -171,6 +167,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+        Intent service = new Intent(this, MusicService.class);
+        bindService(service, connection, BIND_AUTO_CREATE);
+        super.onStart();
+    }
+
 
     private ServiceConnection connection = new ServiceConnection() {
 
@@ -183,11 +186,14 @@ public class MainActivity extends AppCompatActivity {
             mBound = true;
 
             mService.setAdapter(songsAdapter);
+//            songsAdapter.mSelectedItem = MusicService.sPosition;
+            updateAdapter();
 
             unbindService(connection);
 
 
         }
+
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
@@ -196,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
             mBound = false;
         }
     };
+
 
     @Override
     protected void onStop() {
@@ -210,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("state", "on destroy main now");
         super.onDestroy();
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -440,5 +448,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public void updateAdapter() {
+        songsAdapter.mSelectedItem = MusicService.sPosition;
+        songsAdapter.notifyDataSetChanged();
     }
 }

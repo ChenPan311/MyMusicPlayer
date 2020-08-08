@@ -21,8 +21,6 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
-
 import java.util.ArrayList;
 
 public class MusicPlayerActivity extends AppCompatActivity {
@@ -42,13 +40,13 @@ public class MusicPlayerActivity extends AppCompatActivity {
     public static ImageButton play_pause_btn;
     private SeekBar seekBarDuration;
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.music_player_layout);
 
         Log.d("state", "on create now");
-
 
         play_pause_btn = findViewById(R.id.play_pause_btn);
         back_btn = findViewById(R.id.back_btn);
@@ -71,7 +69,8 @@ public class MusicPlayerActivity extends AppCompatActivity {
         Log.d("state", "on start now");
 
         songs_list = getIntent().getParcelableArrayListExtra("songs_list");
-        MusicService.sPosition = getIntent().getIntExtra("position",0);
+        MusicService.sPosition = getIntent().getIntExtra("position", 0);
+
 
         final Intent intent = new Intent(this, MusicService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
@@ -87,26 +86,27 @@ public class MusicPlayerActivity extends AppCompatActivity {
         next_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                restartService("next",MusicService.sPosition,1);
+                restartService("next", MusicService.sPosition, 1);
             }
         });
 
         prev_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                restartService("prev",MusicService.sPosition,-1);
+                restartService("prev", MusicService.sPosition, -1);
             }
         });
 
         play_pause_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                restartService("play",MusicService.sPosition,0);
+                restartService("play", MusicService.sPosition, 0);
             }
         });
         super.onStart();
 
     }
+
 
     @Override
     protected void onStop() {
@@ -121,6 +121,12 @@ public class MusicPlayerActivity extends AppCompatActivity {
     protected void onDestroy() {
         Log.d("state", "on destroy now");
         super.onDestroy();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 
     private ServiceConnection connection = new ServiceConnection() {
@@ -155,7 +161,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
         }
     };
 
-    public void restartService(String command,int position,int next_prev) {
+    public void restartService(String command, int position, int next_prev) {
         Intent service = new Intent(MusicPlayerActivity.this, MusicService.class);
         if (MusicService.isRunnig) {
             service.putExtra("command", command);
@@ -164,8 +170,8 @@ public class MusicPlayerActivity extends AppCompatActivity {
             service.putExtra("position", position + next_prev);
             service.putExtra("songs_list", songs_list);
             service.putExtra("command", "new_instance");
-            startService(service);
             bindService(service, connection, Context.BIND_AUTO_CREATE);
+            startService(service);
 
         }
     }
