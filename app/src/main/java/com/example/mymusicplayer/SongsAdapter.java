@@ -33,7 +33,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
         ImageView album_cover;
         TextView song_name;
         TextView author_name;
-        TextView song_duration;
 
         public SongViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -45,7 +44,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
             }
             song_name = itemView.findViewById(R.id.song_name_tv);
             author_name = itemView.findViewById(R.id.song_author_tv);
-            song_duration = itemView.findViewById(R.id.song_time_duration);
 
         }
     }
@@ -78,7 +76,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
     public void onBindViewHolder(@NonNull final SongViewHolder holder, final int position) {
         Song song = songs.get(position);
         Glide.with(context).load(song.getAlbum_cover()).into(holder.album_cover);
-        holder.song_duration.setText(String.valueOf(song.getSong_duration()));
         holder.author_name.setText(song.getAuthor_name());
         holder.song_name.setText(song.getName());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -98,6 +95,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
         });
         if(mSelectedItem == position) {
             holder.song_name.setTextColor(context.getResources().getColor(R.color.colorAccent));
+
         }
         else {
             holder.song_name.setTextColor(context.getResources().getColor(R.color.colorPrimary));

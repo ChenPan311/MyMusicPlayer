@@ -45,7 +45,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private TextView songName;
     private TextView songAuthor;
     private ImageView songCover;
-    private SongsAdapter adapter;
     private SeekBar seekBar;
 
     private Handler mHandler = new Handler();
@@ -79,8 +78,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         super.onCreate();
         mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setOnPreparedListener(this);
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaPlayer.reset();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         isRunnig = true;
 
         mRunnable = new Runnable() {
@@ -155,7 +154,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         switch (command) {
             case "new_instance":
                 if(intent.getBooleanExtra("same_song",false)){
-                    setSongViewRestarted(songName,songAuthor,songCover,songTotalDuration_tv,songCurrentDuration_tv,seekBar);
+                    setSongViewRestarted();
                 } else {
                     setUpSong(intent);
                     startForeground(NOTIF_ID, notification);
@@ -166,13 +165,17 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 break;
             case "play":
                 if (!mediaPlayer.isPlaying()) {
-                    mediaPlayer.start();
-                    playPauseBtn.setImageResource(R.drawable.ic_pause_btn);
-                    remoteViews.setImageViewResource(R.id.play_pause_notif, R.drawable.ic_notif_pause);
+                    if(playPauseBtn.isEnabled()) {
+                        mediaPlayer.start();
+                        playPauseBtn.setImageResource(R.drawable.ic_pause_btn);
+                        remoteViews.setImageViewResource(R.id.play_pause_notif, R.drawable.ic_notif_pause);
+                    }
                 } else {
-                    mediaPlayer.pause();
-                    playPauseBtn.setImageResource(R.drawable.ic_play_btn);
-                    remoteViews.setImageViewResource(R.id.play_pause_notif, R.drawable.ic_notif_play);
+                    if(playPauseBtn.isEnabled()) {
+                        mediaPlayer.pause();
+                        playPauseBtn.setImageResource(R.drawable.ic_play_btn);
+                        remoteViews.setImageViewResource(R.id.play_pause_notif, R.drawable.ic_notif_play);
+                    }
                 }
                 manager.notify(NOTIF_ID, notification);
                 break;
@@ -183,11 +186,12 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                     remoteViews.setImageViewResource(R.id.play_pause_notif, R.drawable.ic_notif_pause);
                     manager.notify(NOTIF_ID, notification);
                 }
+                playPauseBtn.setEnabled(false);
                 playSong(true);
                 setUpNotificationData(remoteViews, songs.get(sPosition), notification);
                 setSongView(songName, songAuthor, songCover);
-//                adapter.mSelectedItem=sPosition;
-//                adapter.notifyDataSetChanged();
+                MainActivity.songsAdapter.mSelectedItem=sPosition;
+                MainActivity.songsAdapter.notifyDataSetChanged();
                 break;
             case "prev":
                 if (mediaPlayer.isPlaying())
@@ -196,11 +200,12 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                     remoteViews.setImageViewResource(R.id.play_pause_notif, R.drawable.ic_notif_play);
                     manager.notify(NOTIF_ID, notification);
                 }
+                playPauseBtn.setEnabled(false);
                 playSong(false);
                 setUpNotificationData(remoteViews, songs.get(sPosition), notification);
                 setSongView(songName, songAuthor, songCover);
-//                adapter.mSelectedItem=sPosition;
-//                adapter.notifyDataSetChanged();
+                MainActivity.songsAdapter.mSelectedItem=sPosition;
+                MainActivity.songsAdapter.notifyDataSetChanged();
                 break;
             case "close":
                 playPauseBtn.setImageResource(R.drawable.ic_play_btn);
@@ -234,23 +239,22 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         playSong(true);
         setUpNotificationData(remoteViews, songs.get(sPosition), notification);
         setSongView(songName, songAuthor, songCover);
-//        adapter.mSelectedItem=sPosition;
-//        adapter.notifyDataSetChanged();
+
     }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
         duration = mediaPlayer.getDuration();
-        mediaPlayer.start();
 
         songTotalDuration_tv.setText(createTimeLabel(duration));
         seekBar.setMax(duration / 1000);
         playPauseBtn.setImageResource(R.drawable.ic_pause_btn);
-        playPauseBtn.setClickable(true);
+        playPauseBtn.setEnabled(true);
         remoteViews.setImageViewResource(R.id.play_pause_notif, R.drawable.ic_notif_pause);
         manager.notify(NOTIF_ID, notification);
         runDurationOnSeekBar();
 
+        mediaPlayer.start();
 
     }
 
@@ -261,6 +265,25 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         songs = intent.getParcelableArrayListExtra("songs_list");
         sPosition = intent.getIntExtra("position", 0);
         setUpNotificationData(remoteViews, songs.get(sPosition), notification);
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(songs.get(sPosition).getSong_link());
+            mediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void playSong(boolean is_next) {
+        if (is_next) {
+            sPosition++;
+            if (sPosition == songs.size())
+                sPosition = 0;
+        } else {
+            sPosition--;
+            if (sPosition < 0)
+                sPosition = songs.size() - 1;
+        }
         try {
             mediaPlayer.reset();
             mediaPlayer.setDataSource(songs.get(sPosition).getSong_link());
@@ -282,38 +305,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         Glide.with(MusicService.this).asBitmap().load(song.getAlbum_cover()).into(notificationTarget);
     }
 
-    public void playSong(boolean is_next) {
-        if (is_next) {
-            sPosition++;
-            if (sPosition == songs.size())
-                sPosition = 0;
-        } else {
-            sPosition--;
-            if (sPosition < 0)
-                sPosition = songs.size() - 1;
-        }
-        mediaPlayer.reset();
-        try {
-            mediaPlayer.setDataSource(songs.get(sPosition).getSong_link());
-            mediaPlayer.prepareAsync();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public ArrayList<Song> getSongs() {
-        return songs;
-    }
-
 
     public void updateSongs(ArrayList<Song> songs) {
         this.songs = songs;
     }
 
-    public void setAdapter(SongsAdapter songsAdapter) {
-        this.adapter = songsAdapter;
-    }
 
 
     public void setSongView(TextView nameSong, TextView authorSong, ImageView songCover) {
@@ -392,13 +388,15 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
 
-    public void setSongViewRestarted(TextView nameSong, TextView authorSong, ImageView songCover, TextView songTotalDuration, TextView songCurrentDuration, SeekBar seekBar) {
-        nameSong.setText(songs.get(sPosition).getName());
-        authorSong.setText(songs.get(sPosition).getAuthor_name());
-        Glide.with(this).load(songs.get(sPosition).getAlbum_cover()).into(songCover);
-        songTotalDuration.setText(createTimeLabel(mediaPlayer.getDuration()));
-        songCurrentDuration.setText(createTimeLabel(mediaPlayer.getCurrentPosition()));
-        seekBar.setMax(mediaPlayer.getDuration() / 1000);
-        runDurationOnSeekBar();
+    public void setSongViewRestarted() {
+        if(mediaPlayer.isPlaying()) {
+            setSongView(songName, songAuthor, songCover);
+            duration = mediaPlayer.getDuration();
+            seekBar.setMax(duration / 1000);
+            seekBar.setProgress(mediaPlayer.getCurrentPosition());
+            playPauseBtn.setImageResource(R.drawable.ic_pause_btn);
+            songTotalDuration_tv.setText(createTimeLabel(duration));
+            songCurrentDuration_tv.setText(createTimeLabel(mediaPlayer.getCurrentPosition()));
+        }
     }
 }

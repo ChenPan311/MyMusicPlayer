@@ -129,7 +129,6 @@
             android:layout_margin="20dp"
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
-            android:clickable="false"
             android:src="@drawable/ic_play_btn"
             android:tint="@color/colorPrimary" />
 

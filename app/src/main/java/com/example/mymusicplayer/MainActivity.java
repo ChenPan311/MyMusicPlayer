@@ -53,18 +53,16 @@ public class MainActivity extends AppCompatActivity {
     MusicService mService;
     boolean mBound = false;
 
-    private SongsAdapter songsAdapter;
+    public static SongsAdapter songsAdapter;
     private ArrayList<Song> songs;
     private RecyclerView recyclerView;
     private FloatingActionButton addBtn;
 
     private ImageView dialog_cover_iv;
     private File photoPath;
-    private Uri photoPathUri;
 
     public static final int CAMERA_REQUEST = 1;
     public static final int CAMERA_PICK_FROM_GALLERY = 2;
-    public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 7;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -94,27 +92,9 @@ public class MainActivity extends AppCompatActivity {
         songsAdapter = new SongsAdapter(this, songs);
         recyclerView.setAdapter(songsAdapter);
 
-        songsAdapter.setListener(new SongsAdapter.MySongListener() {
-            @Override
-            public void OnSongClicked(View view, int position) {
-                Intent service = new Intent(MainActivity.this, MusicService.class);
-                if (MusicService.isRunnig && position == MusicService.sPosition) {
-                    service.putExtra("same_song", true);
-                }
-                service.putExtra("position", position);
-                service.putExtra("songs_list", songs);
-                service.putExtra("command", "new_instance");
-                startService(service);
-//                bindService(service,connection,BIND_AUTO_CREATE);
-
-                Intent intent = new Intent(MainActivity.this, MusicPlayerActivity.class);
-                intent.putExtra("position", position);
-                intent.putExtra("songs_list", songs);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(intent);
-                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-            }
-        });
+        if(MusicService.isRunnig){
+            updateAdapter();
+        }
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -169,8 +149,31 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-        Intent service = new Intent(this, MusicService.class);
-        bindService(service, connection, BIND_AUTO_CREATE);
+
+        songsAdapter.setListener(new SongsAdapter.MySongListener() {
+            @Override
+            public void OnSongClicked(View view, int position) {
+                Intent service = new Intent(MainActivity.this, MusicService.class);
+                if (MusicService.isRunnig && position == MusicService.sPosition) {
+                    service.putExtra("same_song", true);
+                }
+                service.putExtra("position", position);
+                service.putExtra("songs_list", songs);
+                service.putExtra("command", "new_instance");
+                startService(service);
+                bindService(service,connection,BIND_AUTO_CREATE);
+
+                Intent intent = new Intent(MainActivity.this, MusicPlayerActivity.class);
+                intent.putExtra("position", position);
+                intent.putExtra("songs_list", songs);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+            }
+        });
+
+//        Intent service = new Intent(this, MusicService.class);
+//        bindService(service, connection, BIND_AUTO_CREATE);
         super.onStart();
     }
 
@@ -184,8 +187,7 @@ public class MainActivity extends AppCompatActivity {
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
             mService = binder.getService();
             mBound = true;
-
-            mService.setAdapter(songsAdapter);
+            mService.updateSongs(songs);
 //            songsAdapter.mSelectedItem = MusicService.sPosition;
             updateAdapter();
 
@@ -379,7 +381,6 @@ public class MainActivity extends AppCompatActivity {
         final TextInputEditText songLink_et = view.findViewById(R.id.song_link_dialog);
         dialog_cover_iv = view.findViewById(R.id.cover_iv_dialog);
 
-        photoPathUri = null;
         photoPath = null;
 
         final AlertDialog dialog = builder.create();
@@ -403,7 +404,6 @@ public class MainActivity extends AppCompatActivity {
                 String songName = songName_et.getText().toString();
                 String songAuthor = songAuthor_et.getText().toString();
                 String songLink = songLink_et.getText().toString();
-//                Song newSong ;
                 songs.add(new Song(songName, songAuthor, String.valueOf(dialog_cover_iv.getTag()), songLink));
                 songsAdapter.notifyItemInserted(songs.size() - 1);
 

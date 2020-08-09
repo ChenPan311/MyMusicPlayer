@@ -37,7 +37,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
     private ImageButton back_btn;
     private ImageButton next_btn;
     private ImageButton prev_btn;
-    public static ImageButton play_pause_btn;
+    private ImageButton play_pause_btn;
     private SeekBar seekBarDuration;
 
 
@@ -49,6 +49,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
         Log.d("state", "on create now");
 
         play_pause_btn = findViewById(R.id.play_pause_btn);
+        play_pause_btn.setEnabled(false);
         back_btn = findViewById(R.id.back_btn);
         next_btn = findViewById(R.id.next_btn);
         prev_btn = findViewById(R.id.prev_btn);
@@ -96,6 +97,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
                 restartService("prev", MusicService.sPosition, -1);
             }
         });
+
 
         play_pause_btn.setOnClickListener(new View.OnClickListener() {
             @Override
