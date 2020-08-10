@@ -1,4 +1,5 @@
 package com.example.mymusicplayer;
+
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -27,12 +29,14 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -134,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
                 Collections.swap(songs, pos_drag, pos_target);
                 songsAdapter.notifyItemMoved(pos_drag, pos_target);
 
+
                 saveSongsToFile();
                 Intent service = new Intent(MainActivity.this, MusicService.class);
                 service.putExtra("songs_list", songs);
@@ -148,16 +153,25 @@ public class MainActivity extends AppCompatActivity {
                 final int lastPos = viewHolder.getAdapterPosition();
                 songs.remove(viewHolder.getAdapterPosition());
                 songsAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+                final Intent service = new Intent(MainActivity.this, MusicService.class);
                 Snackbar.make(recyclerView, "Song Deleted", Snackbar.LENGTH_LONG).setActionTextColor(getResources().getColor(R.color.colorAccent))
                         .setAction("UNDO", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 songs.add(lastPos, song);
                                 songsAdapter.notifyItemInserted(lastPos);
+                                MusicService.sPosition += 1;
+                                saveSongsToFile();
+                                service.putExtra("songs_list", songs);
+                                service.putExtra("command", "songs_update");
+                                startService(service);
                             }
                         }).show();
+
+                if (MusicService.sPosition >= lastPos) {
+                    MusicService.sPosition -= 1;
+                }
                 saveSongsToFile();
-                Intent service = new Intent(MainActivity.this, MusicService.class);
                 service.putExtra("songs_list", songs);
                 service.putExtra("command", "songs_update");
                 startService(service);
@@ -173,7 +187,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void OnSongClicked(View view, int position) {
                 Intent service = new Intent(MainActivity.this, MusicService.class);
-                if (MusicService.isRunnig && position == MusicService.sPosition) {
+                if (MusicService.isRunnig &&
+                        position == MusicService.sPosition &&
+                        songs.get(position).getName().equals(songs.get(MusicService.sPosition).getName())) {
                     service.putExtra("same_song", true);
                 }
                 service.putExtra("position", position);
@@ -377,6 +393,7 @@ public class MainActivity extends AppCompatActivity {
         final AlertDialog dialog = builder.create();
         Window window = dialog.getWindow();
         window.setBackgroundDrawableResource(android.R.color.transparent);
+        window.getAttributes().windowAnimations = R.style.DialogAnimation;
         dialog.setView(view);
         dialog.show();
         WindowManager.LayoutParams params = dialog.getWindow().getAttributes();

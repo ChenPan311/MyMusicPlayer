@@ -176,36 +176,16 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 manager.notify(NOTIF_ID, notification);
                 break;
             case "next":
-                if (mediaPlayer.isPlaying())
-                    mediaPlayer.stop();
-                else {
-                    remoteViews.setImageViewResource(R.id.play_pause_notif, R.drawable.ic_notif_pause);
-                    manager.notify(NOTIF_ID, notification);
-                }
-                playPauseBtn.setEnabled(false);
                 playSong(true);
-                setUpNotificationData(remoteViews, songs.get(sPosition), notification);
-                setSongView(songName, songAuthor, songCover);
-                MainActivity.songsAdapter.mSelectedItem = sPosition;
-                MainActivity.songsAdapter.notifyDataSetChanged();
                 break;
             case "prev":
-                if (mediaPlayer.isPlaying())
-                    mediaPlayer.stop();
-                else {
-                    remoteViews.setImageViewResource(R.id.play_pause_notif, R.drawable.ic_notif_play);
-                    manager.notify(NOTIF_ID, notification);
-                }
-                playPauseBtn.setEnabled(false);
                 playSong(false);
-                setUpNotificationData(remoteViews, songs.get(sPosition), notification);
-                setSongView(songName, songAuthor, songCover);
-                MainActivity.songsAdapter.mSelectedItem = sPosition;
-                MainActivity.songsAdapter.notifyDataSetChanged();
                 break;
             case "close":
                 playPauseBtn.setImageResource(R.drawable.ic_play_btn);
                 isRunnig = false;
+                MainActivity.songsAdapter.mSelectedItem = RecyclerView.NO_POSITION;
+                MainActivity.songsAdapter.notifyDataSetChanged();
                 stopForeground(true);
                 stopSelf();
                 break;
@@ -298,9 +278,20 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 sPosition = songs.size() - 1;
         }
         try {
+            if (mediaPlayer.isPlaying())
+                mediaPlayer.stop();
+            else {
+                remoteViews.setImageViewResource(R.id.play_pause_notif, R.drawable.ic_notif_play);
+                manager.notify(NOTIF_ID, notification);
+            }
+            playPauseBtn.setEnabled(false);
             mediaPlayer.reset();
             mediaPlayer.setDataSource(songs.get(sPosition).getSong_link());
             mediaPlayer.prepareAsync();
+            setUpNotificationData(remoteViews, songs.get(sPosition), notification);
+            setSongView(songName, songAuthor, songCover);
+            MainActivity.songsAdapter.mSelectedItem = sPosition;
+            MainActivity.songsAdapter.notifyDataSetChanged();
         } catch (IOException e) {
             e.printStackTrace();
         }

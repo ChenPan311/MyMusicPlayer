@@ -116,6 +116,4 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
     public int getItemCount() {
         return songs.size();
     }
-
-
 }
