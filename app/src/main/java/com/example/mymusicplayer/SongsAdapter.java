@@ -7,6 +7,8 @@ import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -33,6 +35,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
         ImageView album_cover;
         TextView song_name;
         TextView author_name;
+        ImageView disk_iv;
 
         public SongViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -45,6 +48,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
             }
             song_name = itemView.findViewById(R.id.song_name_tv);
             author_name = itemView.findViewById(R.id.song_author_tv);
+            disk_iv = itemView.findViewById(R.id.disk_image);
 
         }
     }
@@ -96,10 +100,15 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
         });
         if(mSelectedItem == position) {
             holder.song_name.setTextColor(context.getResources().getColor(R.color.colorAccent));
+            holder.disk_iv.setVisibility(View.VISIBLE);
+            Animation rotation = AnimationUtils.loadAnimation(context,R.anim.rotation);
+            holder.disk_iv.startAnimation(rotation);
 
         }
         else {
             holder.song_name.setTextColor(context.getResources().getColor(R.color.colorPrimary));
+            holder.disk_iv.clearAnimation();
+            holder.disk_iv.setVisibility(View.GONE);
         }
     }
 

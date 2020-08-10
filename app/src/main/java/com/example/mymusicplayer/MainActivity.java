@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton addBtn;
     private FloatingActionButton playAllBtn;
 
+
     private ImageView dialog_cover_iv;
     private File photoFile;
     private Uri photoUri;
@@ -147,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                 final int lastPos = viewHolder.getAdapterPosition();
                 songs.remove(viewHolder.getAdapterPosition());
                 songsAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
-                Snackbar.make(recyclerView, "Song Deleted", Snackbar.LENGTH_LONG)
+                Snackbar.make(recyclerView, "Song Deleted", Snackbar.LENGTH_LONG).setActionTextColor(getResources().getColor(R.color.colorAccent))
                         .setAction("UNDO", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {

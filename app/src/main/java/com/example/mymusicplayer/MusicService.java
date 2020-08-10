@@ -13,6 +13,8 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RemoteViews;
@@ -135,7 +137,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         remoteViews.setOnClickPendingIntent(R.id.content_layout, musicPlayerPendingIntent);
 
 
-        builder.setCustomBigContentView(remoteViews);
+        builder.setCustomContentView(remoteViews);
         builder.setSmallIcon(R.drawable.logo);
         builder.setOnlyAlertOnce(true);
         builder.setContentIntent(musicPlayerPendingIntent);
@@ -322,10 +324,26 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
 
-    public void setSongView(TextView nameSong, TextView authorSong, ImageView songCover) {
-        nameSong.setText(songs.get(sPosition).getName());
-        authorSong.setText(songs.get(sPosition).getAuthor_name());
-        Glide.with(this).load(songs.get(sPosition).getAlbum_cover()).into(songCover);
+    public void setSongView(final TextView nameSong, final TextView authorSong, final ImageView songCover) {
+        Animation fadeOut = AnimationUtils.loadAnimation(MusicService.this, R.anim.fade_out);
+        nameSong.startAnimation(fadeOut);
+        authorSong.startAnimation(fadeOut);
+        songCover.startAnimation(fadeOut);
+
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                Glide.with(MusicService.this).load(songs.get(sPosition).getAlbum_cover()).into(songCover);
+                nameSong.setText(songs.get(sPosition).getName());
+                authorSong.setText(songs.get(sPosition).getAuthor_name());
+                Animation fadeIn = AnimationUtils.loadAnimation(MusicService.this, R.anim.fade_in);
+                songCover.startAnimation(fadeIn);
+            }
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
     }
 
 
