@@ -1,20 +1,18 @@
 package com.example.mymusicplayer;
 
-import android.app.ActivityOptions;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -25,7 +23,11 @@ import java.util.ArrayList;
 
 public class MusicPlayerActivity extends AppCompatActivity {
     MusicService mService;
-    boolean mBound = false;
+    boolean mBound = false;;
+
+    private MediaPlayer mp;
+    private Runnable mRunnable;
+    private Handler mHandler = new Handler();
 
     private ArrayList<Song> songs_list;
 
@@ -47,6 +49,18 @@ public class MusicPlayerActivity extends AppCompatActivity {
         setContentView(R.layout.music_player_layout);
 
         Log.d("state", "on create now");
+
+        mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (mp != null) {
+                    int mCurrentPosition = mp.getCurrentPosition() / 1000;
+                    seekBarDuration.setProgress(mCurrentPosition);
+                    song_current_duration.setText(createTimeLabel(mp.getCurrentPosition()));
+                }
+                mHandler.postDelayed(this, 1000);
+            }
+        };
 
         play_pause_btn = findViewById(R.id.play_pause_btn);
         play_pause_btn.setEnabled(false);
@@ -75,6 +89,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
 
         final Intent intent = new Intent(this, MusicService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
 
         back_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,8 +164,8 @@ public class MusicPlayerActivity extends AppCompatActivity {
                 mService.setSongTotalDuration_tv(song_total_duration);
                 mService.setCurrentDuration_tv(song_current_duration);
                 mService.setSeekBar(seekBarDuration);
+                mp = mService.getMediaPlayer();
                 mService.setSongView(song_name, author_name, album_cover);
-//                songs_list = mService.getSongs();
 
                 unbindService(connection);
             }
@@ -176,6 +191,20 @@ public class MusicPlayerActivity extends AppCompatActivity {
             startService(service);
 
         }
+    }
+
+    public String createTimeLabel(int duration) {
+        String timeLabel = "";
+        int min = duration / 1000 / 60;
+        int sec = duration / 1000 % 60;
+        if (min < 10)
+            timeLabel += "0" + min + ":";
+        else timeLabel += min + ":";
+        if (sec < 10)
+            timeLabel += "0" + sec;
+        else timeLabel += sec;
+        return timeLabel;
+
     }
 
 

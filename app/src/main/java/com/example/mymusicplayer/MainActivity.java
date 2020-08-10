@@ -1,45 +1,38 @@
 package com.example.mymusicplayer;
-
 import android.Manifest;
-import android.app.ActivityOptions;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
-import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -57,26 +50,37 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Song> songs;
     private RecyclerView recyclerView;
     private FloatingActionButton addBtn;
+    private FloatingActionButton playAllBtn;
 
     private ImageView dialog_cover_iv;
-    private File photoPath;
+    private File photoFile;
+    private Uri photoUri;
 
     public static final int CAMERA_REQUEST = 1;
     public static final int CAMERA_PICK_FROM_GALLERY = 2;
+    public static final int WRITE_REQUEST = 3;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
-
+        if (Build.VERSION.SDK_INT >= 23) {
+            int hasWritePremission = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (hasWritePremission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_REQUEST);
+            }
+        }
         Log.d("state", "on create main now");
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        collapsingToolbar.setTitle(getString(R.string.app_name));
 
         addBtn = findViewById(R.id.add_Btn);
-
+        playAllBtn = findViewById(R.id.play_all_btn);
         recyclerView = findViewById(R.id.recycler_layout);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
@@ -88,13 +92,31 @@ public class MainActivity extends AppCompatActivity {
             initFirstRunSongs();
         }
 
-
         songsAdapter = new SongsAdapter(this, songs);
         recyclerView.setAdapter(songsAdapter);
 
-        if(MusicService.isRunnig){
+        if (MusicService.isRunnig) {
             updateAdapter();
         }
+
+        playAllBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent service = new Intent(MainActivity.this, MusicService.class);
+                service.putExtra("position", 0);
+                service.putExtra("songs_list", songs);
+                service.putExtra("command", "new_instance");
+                startService(service);
+                bindService(service, connection, BIND_AUTO_CREATE);
+
+                Intent intent = new Intent(MainActivity.this, MusicPlayerActivity.class);
+                intent.putExtra("position", 0);
+                intent.putExtra("songs_list", songs);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+            }
+        });
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,16 +162,12 @@ public class MainActivity extends AppCompatActivity {
                 startService(service);
             }
         };
-
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
-
-
     }
 
     @Override
     protected void onStart() {
-
         songsAdapter.setListener(new SongsAdapter.MySongListener() {
             @Override
             public void OnSongClicked(View view, int position) {
@@ -161,25 +179,21 @@ public class MainActivity extends AppCompatActivity {
                 service.putExtra("songs_list", songs);
                 service.putExtra("command", "new_instance");
                 startService(service);
-                bindService(service,connection,BIND_AUTO_CREATE);
+                bindService(service, connection, BIND_AUTO_CREATE);
 
                 Intent intent = new Intent(MainActivity.this, MusicPlayerActivity.class);
                 intent.putExtra("position", position);
                 intent.putExtra("songs_list", songs);
+                intent.putExtra("same_song", true);
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             }
         });
-
-//        Intent service = new Intent(this, MusicService.class);
-//        bindService(service, connection, BIND_AUTO_CREATE);
         super.onStart();
     }
 
-
     private ServiceConnection connection = new ServiceConnection() {
-
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
@@ -188,14 +202,10 @@ public class MainActivity extends AppCompatActivity {
             mService = binder.getService();
             mBound = true;
             mService.updateSongs(songs);
-//            songsAdapter.mSelectedItem = MusicService.sPosition;
             updateAdapter();
 
             unbindService(connection);
-
-
         }
-
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
@@ -205,40 +215,21 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
     @Override
     protected void onStop() {
-//        unbindService(connection);
         mBound = false;
         Log.d("state", "on stop main now");
         super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.d("state", "on destroy main now");
-        super.onDestroy();
     }
 
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CAMERA_REQUEST) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                photoPath = new File(Environment.getExternalStorageDirectory(), "song" + (songs != null ? songs.size() : 0) + ".jpg");
-                takePicture.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoPath));
-                startActivityForResult(takePicture, CAMERA_REQUEST);
-            } else {
-                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
-            }
-        } else if (requestCode == CAMERA_PICK_FROM_GALLERY) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Intent pickPicture = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(pickPicture, CAMERA_PICK_FROM_GALLERY);
-            } else {
-                Toast.makeText(this, "External storage permission denied", Toast.LENGTH_LONG).show();
+
+        if (requestCode == WRITE_REQUEST) {
+            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Cant take picture", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -246,17 +237,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
-            dialog_cover_iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
             dialog_cover_iv.setVisibility(View.VISIBLE);
-            dialog_cover_iv.setTag(String.valueOf(Uri.fromFile(photoPath)));
-            dialog_cover_iv.setImageBitmap(BitmapFactory.decodeFile(photoPath.getAbsolutePath()));
-        }
-        if (requestCode == CAMERA_PICK_FROM_GALLERY && resultCode == RESULT_OK && data != null) {
+            Glide.with(MainActivity.this).load(photoUri).into(dialog_cover_iv);
+            dialog_cover_iv.requestLayout();
+
+        } else if (requestCode == CAMERA_PICK_FROM_GALLERY && resultCode == RESULT_OK) {
             dialog_cover_iv.setVisibility(View.VISIBLE);
-            dialog_cover_iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            dialog_cover_iv.setTag(data.getData());
-            Glide.with(this).load(data.getData()).into(dialog_cover_iv);
+            photoUri = data.getData();
+            Glide.with(MainActivity.this).load(data.getData()).into((dialog_cover_iv));
         }
     }
 
@@ -381,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
         final TextInputEditText songLink_et = view.findViewById(R.id.song_link_dialog);
         dialog_cover_iv = view.findViewById(R.id.cover_iv_dialog);
 
-        photoPath = null;
+        photoFile = null;
 
         final AlertDialog dialog = builder.create();
         Window window = dialog.getWindow();
@@ -401,36 +391,40 @@ public class MainActivity extends AppCompatActivity {
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String songName = songName_et.getText().toString();
-                String songAuthor = songAuthor_et.getText().toString();
-                String songLink = songLink_et.getText().toString();
-                songs.add(new Song(songName, songAuthor, String.valueOf(dialog_cover_iv.getTag()), songLink));
-                songsAdapter.notifyItemInserted(songs.size() - 1);
+                if (songName_et.length() == 0) {
+                    songName_et.setError("Enter Name!");
+                } else if (songAuthor_et.length() == 0) {
+                    songAuthor_et.setError("Enter Author!");
+                } else if (songLink_et.length() == 0) {
+                    songLink_et.setError("Enter Link!");
+                } else {
+                    String songName = songName_et.getText().toString();
+                    String songAuthor = songAuthor_et.getText().toString();
+                    String songLink = songLink_et.getText().toString();
+                    songs.add(new Song(songName, songAuthor, photoUri.toString(), songLink));
+                    songsAdapter.notifyItemInserted(songs.size() - 1);
 
-                Intent service = new Intent(MainActivity.this, MusicService.class);
-                service.putExtra("songs_list", songs);
-                service.putExtra("command", "songs_update");
-                startService(service);
+                    Intent service = new Intent(MainActivity.this, MusicService.class);
+                    service.putExtra("songs_list", songs);
+                    service.putExtra("command", "songs_update");
+                    startService(service);
 
-                saveSongsToFile();
-                dialog.dismiss();
-
+                    saveSongsToFile();
+                    dialog.dismiss();
+                }
             }
         });
 
         addPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                        requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_REQUEST);
-                    } else {
-                        Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        photoPath = new File(Environment.getExternalStorageDirectory(), "song" + (songs != null ? songs.size() : 0) + ".jpg");
-                        takePicture.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoPath));
-                        startActivityForResult(takePicture, CAMERA_REQUEST);
-                    }
-                }
+                photoFile = new File(Environment.getExternalStorageDirectory(), "song" + (songs != null ? songs.size() : 0) + ".jpg");
+                photoUri = FileProvider.getUriForFile(MainActivity.this
+                        , "com.example.mymusicplayer.provider",
+                        photoFile);
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                startActivityForResult(intent, CAMERA_REQUEST);
             }
 
         });
@@ -438,14 +432,8 @@ public class MainActivity extends AppCompatActivity {
         pickPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, CAMERA_PICK_FROM_GALLERY);
-                    } else {
-                        Intent pickPicture = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                        startActivityForResult(pickPicture, CAMERA_PICK_FROM_GALLERY);
-                    }
-                }
+                Intent pickPicture = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(pickPicture, CAMERA_PICK_FROM_GALLERY);
             }
         });
     }

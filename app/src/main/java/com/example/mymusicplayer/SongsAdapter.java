@@ -39,6 +39,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
             itemView.setClickable(true);
             cardView = itemView.findViewById(R.id.song_cardview);
             album_cover = itemView.findViewById(R.id.song_cover_iv);
+            album_cover.setScaleType(ImageView.ScaleType.CENTER_CROP);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 album_cover.setClipToOutline(true);
             }
