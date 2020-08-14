@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Add Song"
+            android:text="@string/dialog_header"
             android:textColor="@color/colorPrimaryDark"
             android:textSize="20sp" />
 
@@ -36,7 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:hint="Song Name"
+                android:hint="@string/dialog_song_name"
                 android:textColorHint="@color/colorPrimaryDark"
                 app:boxStrokeColor="@color/colorAccent"
                 app:boxStrokeWidth="1dp"
@@ -57,7 +57,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:hint="Song Author"
+                android:hint="@string/dialog_song_author"
                 android:textColorHint="@color/colorPrimaryDark"
                 app:boxStrokeColor="@color/colorAccent"
                 app:boxStrokeWidth="1dp"
@@ -78,7 +78,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:hint="Song Link"
+                android:hint="@string/dialog_song_link"
                 android:textColorHint="@color/colorPrimaryDark"
                 app:boxStrokeColor="@color/colorAccent"
                 app:boxStrokeWidth="1dp"
@@ -148,7 +148,7 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cancel"
+                android:text="@string/dialog_cancel"
                 android:textAllCaps="false"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="15sp" />
@@ -160,7 +160,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:backgroundTint="@color/colorAccent"
-                android:text="Add"
+                android:text="@string/dialog_add"
                 android:textAllCaps="false"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="15sp" />

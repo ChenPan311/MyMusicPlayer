@@ -33,7 +33,7 @@ import java.util.ArrayList;
 
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
     private final IBinder binder = new LocalBinder();
-    public static boolean isRunnig;
+    public static boolean isRunnig = false;
     public static int sPosition = RecyclerView.NO_POSITION;
     private Activity context;
 
@@ -47,6 +47,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private TextView songAuthor;
     private ImageView songCover;
     private SeekBar seekBar;
+    private int tempSongIndex = RecyclerView.NO_POSITION;
 
     private Handler mHandler = new Handler();
     private Runnable mRunnable;
@@ -58,7 +59,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private Notification notification;
 
     final int NOTIF_ID = 1;
-
 
     public class LocalBinder extends Binder {
         MusicService getService() {
@@ -81,6 +81,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mediaPlayer.reset();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         isRunnig = true;
+        Log.d("index","service isRunning=true");
 
         mRunnable = new Runnable() {
             @Override
@@ -94,7 +95,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             }
         };
 
-        Log.d("service", "On Create Service!");
 
         manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
@@ -153,8 +153,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         String command = intent.getStringExtra("command");
         switch (command) {
             case "new_instance":
-                    setUpSong(intent,intent.getBooleanExtra("same_song", false));
-                    startForeground(NOTIF_ID, notification);
+                setUpSong(intent, intent.getBooleanExtra("same_song", false));
+                startForeground(NOTIF_ID, notification);
                 break;
             case "songs_update":
                 songs = intent.getParcelableArrayListExtra("songs_list");
@@ -184,7 +184,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             case "close":
                 playPauseBtn.setImageResource(R.drawable.ic_play_btn);
                 isRunnig = false;
-                MainActivity.songsAdapter.mSelectedItem = RecyclerView.NO_POSITION;
+                sPosition = RecyclerView.NO_POSITION;
+//                MainActivity.songsAdapter.setmSelectedItem(RecyclerView.NO_POSITION);
                 MainActivity.songsAdapter.notifyDataSetChanged();
                 stopForeground(true);
                 stopSelf();
@@ -215,7 +216,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         playSong(true);
         setUpNotificationData(remoteViews, songs.get(sPosition), notification);
         setSongView(songName, songAuthor, songCover);
-        MainActivity.songsAdapter.mSelectedItem = sPosition;
+//        MainActivity.songsAdapter.setmSelectedItem(sPosition);
         MainActivity.songsAdapter.notifyDataSetChanged();
     }
 
@@ -233,21 +234,37 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public void setUpSong(Intent intent, boolean isSameSong) {
-        if(!isSameSong) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
-            songs = intent.getParcelableArrayListExtra("songs_list");
-            sPosition = intent.getIntExtra("position", 0);
-            setUpNotificationData(remoteViews, songs.get(sPosition), notification);
-            try {
-                mediaPlayer.reset();
-                mediaPlayer.setDataSource(songs.get(sPosition).getSong_link());
-                mediaPlayer.prepareAsync();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
+//        if(!isSameSong) {
+//            if (mediaPlayer.isPlaying()) {
+//                mediaPlayer.stop();
+//            }
+//            songs = intent.getParcelableArrayListExtra("songs_list");
+//            sPosition = intent.getIntExtra("position", 0);
+//
+//            Log.d("position","music service position: "+sPosition);
+//
+//            setUpNotificationData(remoteViews, songs.get(sPosition), notification);
+//            try {
+//                mediaPlayer.reset();
+//                mediaPlayer.setDataSource(songs.get(sPosition).getSong_link());
+//                mediaPlayer.prepareAsync();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        for (int i = 0; i < songs.size(); i++) {
+//            Log.d("songs", songs.get(i).getName());
+//            if (i == songs.size()-1)
+//                Log.d("songs", "***********");
+//        }
+
+
+        songs = intent.getParcelableArrayListExtra("songs_list");
+        sPosition = intent.getIntExtra("position", 0);
+
+        Log.d(" position", "Service index: " + sPosition + " Serivce Temp Index: " + tempSongIndex);
+
+        if (mediaPlayer.isPlaying() && intent.getBooleanExtra("same_song",false)) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -263,8 +280,22 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                     runDurationOnSeekBar();
                 }
             }, 250);
+        } else {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            setUpNotificationData(remoteViews, songs.get(sPosition), notification);
+            try {
+                mediaPlayer.reset();
+                mediaPlayer.setDataSource(songs.get(sPosition).getSong_link());
+                mediaPlayer.prepareAsync();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
         }
+        tempSongIndex = sPosition;
+
     }
 
     public void playSong(boolean is_next) {
@@ -277,6 +308,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             if (sPosition < 0)
                 sPosition = songs.size() - 1;
         }
+        Log.d("index","inside next/prev : "+sPosition);
         try {
             if (mediaPlayer.isPlaying())
                 mediaPlayer.stop();
@@ -290,7 +322,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             mediaPlayer.prepareAsync();
             setUpNotificationData(remoteViews, songs.get(sPosition), notification);
             setSongView(songName, songAuthor, songCover);
-            MainActivity.songsAdapter.mSelectedItem = sPosition;
+//            MainActivity.songsAdapter.setmSelectedItem(sPosition);
             MainActivity.songsAdapter.notifyDataSetChanged();
         } catch (IOException e) {
             e.printStackTrace();
@@ -323,7 +355,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         fadeOut.setAnimationListener(new Animation.AnimationListener() {
             @Override
-            public void onAnimationStart(Animation animation) {}
+            public void onAnimationStart(Animation animation) {
+            }
+
             @Override
             public void onAnimationEnd(Animation animation) {
                 Glide.with(MusicService.this).load(songs.get(sPosition).getAlbum_cover()).into(songCover);
@@ -332,8 +366,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 Animation fadeIn = AnimationUtils.loadAnimation(MusicService.this, R.anim.fade_in);
                 songCover.startAnimation(fadeIn);
             }
+
             @Override
-            public void onAnimationRepeat(Animation animation) {}
+            public void onAnimationRepeat(Animation animation) {
+            }
         });
     }
 

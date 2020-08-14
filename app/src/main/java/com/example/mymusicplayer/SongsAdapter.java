@@ -4,12 +4,14 @@ package com.example.mymusicplayer;
 import android.content.Context;
 import android.os.Build;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,19 +29,21 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
     private MySongListener listener;
     // variable to track event time
     private long mLastClickTime = 0;
-    public int mSelectedItem = RecyclerView.NO_POSITION;
+//    private int mSelectedItem = MusicService.sPosition;
 
     //-----------View Holder-----------//
     public class SongViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
+        RelativeLayout relativeLayout;
         ImageView album_cover;
         TextView song_name;
         TextView author_name;
         ImageView disk_iv;
 
-        public SongViewHolder(@NonNull View itemView) {
+        public SongViewHolder(@NonNull final View itemView) {
             super(itemView);
             itemView.setClickable(true);
+            relativeLayout = itemView.findViewById(R.id.content_layout);
             cardView = itemView.findViewById(R.id.song_cardview);
             album_cover = itemView.findViewById(R.id.song_cover_iv);
             album_cover.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -49,6 +53,22 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
             song_name = itemView.findViewById(R.id.song_name_tv);
             author_name = itemView.findViewById(R.id.song_author_tv);
             disk_iv = itemView.findViewById(R.id.disk_image);
+            relativeLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null) {
+                        // Preventing multiple clicks, using threshold of 1 second
+                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                            return;
+                        }
+//                        mSelectedItem = getAdapterPosition();
+//                        Log.d("position","mSelected : "+mSelectedItem);
+//                        notifyDataSetChanged();
+                        mLastClickTime = SystemClock.elapsedRealtime();
+                        listener.OnSongClicked(v, getAdapterPosition());
+                    }
+                }
+            });
 
         }
     }
@@ -79,26 +99,12 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
 
     @Override
     public void onBindViewHolder(@NonNull final SongViewHolder holder, final int position) {
-        Song song = songs.get(position);
+        Song song = songs.get(holder.getAdapterPosition());
         Glide.with(context).load(song.getAlbum_cover()).into(holder.album_cover);
         holder.author_name.setText(song.getAuthor_name());
         holder.song_name.setText(song.getName());
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    // Preventing multiple clicks, using threshold of 1 second
-                    if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
-                        return;
-                    }
-                    mSelectedItem = position;
-                    notifyDataSetChanged();
-                    mLastClickTime = SystemClock.elapsedRealtime();
-                    listener.OnSongClicked(v, position);
-                }
-            }
-        });
-        if(mSelectedItem == position) {
+
+        if(MusicService.sPosition == position) {
             holder.song_name.setTextColor(context.getResources().getColor(R.color.colorAccent));
             holder.disk_iv.setVisibility(View.VISIBLE);
             Animation rotation = AnimationUtils.loadAnimation(context,R.anim.rotation);
@@ -116,4 +122,12 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongViewHold
     public int getItemCount() {
         return songs.size();
     }
+
+//    public int getmSelectedItem() {
+//        return mSelectedItem;
+//    }
+
+//    public void setmSelectedItem(int mSelectedItem) {
+//        this.mSelectedItem = mSelectedItem;
+//    }
 }

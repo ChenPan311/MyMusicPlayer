@@ -26,7 +26,6 @@ public class MusicPlayerActivity extends AppCompatActivity {
     boolean mBound = false;;
 
     private MediaPlayer mp;
-    private Runnable mRunnable;
     private Handler mHandler = new Handler();
 
     private ArrayList<Song> songs_list;
@@ -49,18 +48,6 @@ public class MusicPlayerActivity extends AppCompatActivity {
         setContentView(R.layout.music_player_layout);
 
         Log.d("state", "on create now");
-
-        mRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (mp != null) {
-                    int mCurrentPosition = mp.getCurrentPosition() / 1000;
-                    seekBarDuration.setProgress(mCurrentPosition);
-                    song_current_duration.setText(createTimeLabel(mp.getCurrentPosition()));
-                }
-                mHandler.postDelayed(this, 1000);
-            }
-        };
 
         play_pause_btn = findViewById(R.id.play_pause_btn);
         play_pause_btn.setEnabled(false);
@@ -85,6 +72,8 @@ public class MusicPlayerActivity extends AppCompatActivity {
 
         songs_list = getIntent().getParcelableArrayListExtra("songs_list");
         MusicService.sPosition = getIntent().getIntExtra("position", 0);
+
+        Log.d("position", "music player activity pos : "+MusicService.sPosition);
 
 
         final Intent intent = new Intent(this, MusicService.class);
@@ -192,20 +181,5 @@ public class MusicPlayerActivity extends AppCompatActivity {
 
         }
     }
-
-    public String createTimeLabel(int duration) {
-        String timeLabel = "";
-        int min = duration / 1000 / 60;
-        int sec = duration / 1000 % 60;
-        if (min < 10)
-            timeLabel += "0" + min + ":";
-        else timeLabel += min + ":";
-        if (sec < 10)
-            timeLabel += "0" + sec;
-        else timeLabel += sec;
-        return timeLabel;
-
-    }
-
 
 }
