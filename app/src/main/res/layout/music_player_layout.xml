@@ -16,6 +16,8 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@android:color/transparent"
+            android:clickable="true"
+            android:foreground="?android:attr/selectableItemBackground"
             android:src="@drawable/ic_baseline_arrow_back_ios_24"
             android:tint="@color/colorPrimary" />
 
@@ -32,9 +34,11 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/songs_name_author_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/header"
+        android:layout_above="@id/song_cover_iv"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:gravity="center"
@@ -64,9 +68,9 @@
         android:layout_height="250dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:scaleType="centerCrop"
+        android:layout_marginTop="10dp"
         android:background="@drawable/round_outline"
-        android:transitionName="coverTrans" />
+        android:scaleType="centerCrop" />
 
     <RelativeLayout
         android:id="@+id/progress_lay"
@@ -88,10 +92,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/song_progress"
-            android:layout_marginTop="5dp"
             android:layout_alignParentEnd="true"
-            android:textSize="15sp"
-            android:textColor="@color/colorPrimary"/>
+            android:layout_marginTop="5dp"
+            android:textColor="@color/colorPrimary"
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/current_duration"
@@ -99,8 +103,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/song_progress"
             android:layout_marginTop="5dp"
-            android:textSize="15sp"
-            android:textColor="@color/colorPrimary"/>
+            android:textColor="@color/colorPrimary"
+            android:textSize="15sp" />
 
     </RelativeLayout>
 
@@ -119,6 +123,8 @@
             android:layout_height="40dp"
             android:layout_margin="20dp"
             android:background="@android:color/transparent"
+            android:clickable="true"
+            android:foreground="?android:attr/selectableItemBackground"
             android:scaleType="fitXY"
             android:src="@drawable/ic_prev_btn"
             android:tint="@color/colorPrimary" />
@@ -129,6 +135,8 @@
             android:layout_height="70dp"
             android:layout_margin="20dp"
             android:background="@android:color/transparent"
+            android:clickable="true"
+            android:foreground="?android:attr/selectableItemBackground"
             android:scaleType="fitXY"
             android:src="@drawable/ic_play_btn"
             android:tint="@color/colorPrimary" />
@@ -139,6 +147,8 @@
             android:layout_height="40dp"
             android:layout_margin="20dp"
             android:background="@android:color/transparent"
+            android:clickable="true"
+            android:foreground="?android:attr/selectableItemBackground"
             android:scaleType="fitXY"
             android:src="@drawable/ic_next_btn"
             android:tint="@color/colorPrimary" />

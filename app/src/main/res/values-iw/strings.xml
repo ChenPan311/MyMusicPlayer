@@ -11,4 +11,8 @@
     <string name="dialog_name_error">הכנס שם!</string>
     <string name="dialog_author_error">הכנס אמן!</string>
     <string name="dialog_link_error">הכנס קישור!</string>
+    <string name="song_delete_snackbar">השיר נמחק</string>
+    <string name="song_delete_cancel">בטל</string>
+    <string name="delete_text_dialog">האם הינך בטוח/ה כי ברצונך למחוק את השיר?</string>
+    <string name="delete_button_dialog">מחק</string>
 </resources>

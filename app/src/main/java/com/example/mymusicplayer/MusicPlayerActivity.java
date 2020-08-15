@@ -4,10 +4,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
@@ -23,13 +21,8 @@ import java.util.ArrayList;
 
 public class MusicPlayerActivity extends AppCompatActivity {
     MusicService mService;
-    boolean mBound = false;;
-
-    private MediaPlayer mp;
-    private Handler mHandler = new Handler();
-
-    private ArrayList<Song> songs_list;
-
+    boolean mBound = false;
+    private ArrayList<Song> songs;
     private ImageView album_cover;
     private TextView song_name;
     private TextView author_name;
@@ -41,13 +34,14 @@ public class MusicPlayerActivity extends AppCompatActivity {
     private ImageButton play_pause_btn;
     private SeekBar seekBarDuration;
 
+    private int position;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.music_player_layout);
 
-        Log.d("state", "on create now");
+        Log.d("bdika", "on create now");
 
         play_pause_btn = findViewById(R.id.play_pause_btn);
         play_pause_btn.setEnabled(false);
@@ -64,26 +58,20 @@ public class MusicPlayerActivity extends AppCompatActivity {
         song_current_duration = findViewById(R.id.current_duration);
         seekBarDuration = findViewById(R.id.song_progress);
 
-    }
-
-    @Override
-    protected void onStart() {
-        Log.d("state", "on start now");
-
-        songs_list = getIntent().getParcelableArrayListExtra("songs_list");
-        MusicService.sPosition = getIntent().getIntExtra("position", 0);
-
-        Log.d("position", "music player activity pos : "+MusicService.sPosition);
-
+        position = getIntent().getIntExtra("position",0);
+        songs = getIntent().getParcelableArrayListExtra("songs_list");
 
         final Intent intent = new Intent(this, MusicService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
+    }
+
+    @Override
+    protected void onStart() {
 
         back_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                unbindService(connection);
                 onBackPressed();
             }
         });
@@ -102,7 +90,6 @@ public class MusicPlayerActivity extends AppCompatActivity {
             }
         });
 
-
         play_pause_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,23 +97,13 @@ public class MusicPlayerActivity extends AppCompatActivity {
             }
         });
         super.onStart();
-
     }
-
 
     @Override
     protected void onStop() {
-
         Log.d("state", "on stop now");
-//        unbindService(connection);
         mBound = false;
         super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.d("state", "on destroy now");
-        super.onDestroy();
     }
 
     @Override
@@ -144,7 +121,6 @@ public class MusicPlayerActivity extends AppCompatActivity {
             mService = binder.getService();
             mBound = true;
             if (mService != null) {
-                mService.updateSongs(songs_list);
                 mService.setContext(MusicPlayerActivity.this);
                 mService.setPlayPauseBtn(play_pause_btn);
                 mService.setSongName(song_name);
@@ -153,7 +129,6 @@ public class MusicPlayerActivity extends AppCompatActivity {
                 mService.setSongTotalDuration_tv(song_total_duration);
                 mService.setCurrentDuration_tv(song_current_duration);
                 mService.setSeekBar(seekBarDuration);
-                mp = mService.getMediaPlayer();
                 mService.setSongView(song_name, author_name, album_cover);
 
                 unbindService(connection);
@@ -171,15 +146,19 @@ public class MusicPlayerActivity extends AppCompatActivity {
         Intent service = new Intent(MusicPlayerActivity.this, MusicService.class);
         if (MusicService.isRunnig) {
             service.putExtra("command", command);
-            startService(service);
         } else {
-            service.putExtra("position", position + next_prev);
-            service.putExtra("songs_list", songs_list);
+            if (position + next_prev == songs.size()) {
+                position = 0;
+            } else if (position + next_prev < 0)
+                position = songs.size() - 1;
+            else
+                position = position + next_prev;
+            service.putExtra("position", position);
+            service.putExtra("songs_list",songs);
             service.putExtra("command", "new_instance");
             bindService(service, connection, Context.BIND_AUTO_CREATE);
-            startService(service);
-
         }
+        startService(service);
     }
 
 }

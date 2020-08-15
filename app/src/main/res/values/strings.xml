@@ -10,4 +10,8 @@
     <string name="dialog_name_error">Enter Name!</string>
     <string name="dialog_author_error">Enter Author!</string>
     <string name="dialog_link_error">Enter Link!</string>
+    <string name="song_delete_snackbar">Song Deleted</string>
+    <string name="song_delete_cancel">Undo</string>
+    <string name="delete_text_dialog">Are You Sure You Want To Delete This Song?</string>
+    <string name="delete_button_dialog">Delete</string>
 </resources>

@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton addBtn;
     private FloatingActionButton playAllBtn;
 
-
     private ImageView dialog_cover_iv;
     private File photoFile;
     private Uri photoUri;
@@ -69,15 +68,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            int hasWritePremission = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            if (hasWritePremission != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_REQUEST);
-            }
-        }
-        Log.d("state", "on create main now");
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
@@ -139,19 +130,13 @@ public class MainActivity extends AppCompatActivity {
                 songs.remove(fromTarget);
                 songs.add(toTarget, tempSong);
 
-
-                Log.d("index", "service isRunning check in mainactivity = true");
                 if (MusicService.isRunnig) {
-                    Log.d("index", "inside checking");
                     if (fromTarget < MusicService.sPosition && toTarget >= MusicService.sPosition) {
                         MusicService.sPosition -= 1;
-                        Log.d("index", "toTarget > sPosition: " + MusicService.sPosition);
                     } else if (fromTarget > MusicService.sPosition && toTarget <= MusicService.sPosition) {
                         MusicService.sPosition += 1;
-                        Log.d("index", "toTarget < sPosition: " + MusicService.sPosition);
                     } else if (fromTarget == MusicService.sPosition) {
                         MusicService.sPosition = toTarget;
-                        Log.d("index", "fromTarget == sPosition: " + MusicService.sPosition);
                     }
 
                 }
@@ -170,49 +155,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
-                final Song song = (Song) songs.get(viewHolder.getAdapterPosition());
-                final int lastPos = viewHolder.getAdapterPosition();
-                songs.remove(viewHolder.getAdapterPosition());
-                songsAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
-//                songsAdapter.notifyItemRangeChanged(lastPos, songs.size());
-                final Intent service = new Intent(MainActivity.this, MusicService.class);
-
-                Snackbar.make(recyclerView, "Song Deleted", Snackbar.LENGTH_LONG).setActionTextColor(getResources().getColor(R.color.colorAccent))
-                        .setAction("UNDO", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                songs.add(lastPos, song);
-                                songsAdapter.notifyItemInserted(lastPos);
-//                                songsAdapter.notifyItemRangeChanged(lastPos, songs.size());
-                                if (MusicService.sPosition != RecyclerView.NO_POSITION) {
-                                    MusicService.sPosition += 1;
-//                                    MainActivity.songsAdapter.setmSelectedItem(MusicService.sPosition);
-                                }
-
-                                saveSongsToFile();
-                                service.putExtra("songs_list", songs);
-                                service.putExtra("command", "songs_update");
-                                startService(service);
-                            }
-                        }).show();
-
-                if (MusicService.sPosition > lastPos && MusicService.isRunnig) {
-                    MusicService.sPosition -= 1;
-//                    MainActivity.songsAdapter.setmSelectedItem(MusicService.sPosition);
-                } else if (MusicService.sPosition == lastPos && MusicService.isRunnig) {
-                    MusicService.sPosition -= 1;
-                    service.putExtra("songs_list", songs);
-                    service.putExtra("command", "songs_update");
-                    startService(service);
-                    service.putExtra("command", "next");
-                    startService(service);
-                }
-                saveSongsToFile();
-                service.putExtra("songs_list", songs);
-                service.putExtra("command", "songs_update");
-                startService(service);
+                showSongDeleteDialog(viewHolder);
             }
-
         };
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
@@ -221,26 +165,22 @@ public class MainActivity extends AppCompatActivity {
         songsAdapter.setListener(new SongsAdapter.MySongListener() {
             @Override
             public void OnSongClicked(View view, int position) {
-
-
                 Intent service = new Intent(MainActivity.this, MusicService.class);
-                Log.d("position", "pos main activity : " + position + "pos from service :" + MusicService.sPosition);
                 if (MusicService.isRunnig && position == MusicService.sPosition) {
                     service.putExtra("same_song", true);
                 }
-                service.putExtra("position", position);
-                service.putExtra("songs_list", songs);
-                service.putExtra("command", "new_instance");
-                startService(service);
-                bindService(service, connection, BIND_AUTO_CREATE);
-
                 Intent intent = new Intent(MainActivity.this, MusicPlayerActivity.class);
-                intent.putExtra("position", position);
                 intent.putExtra("songs_list", songs);
-                intent.putExtra("same_song", true);
+                intent.putExtra("position",position);
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+
+                service.putExtra("position", position);
+                service.putExtra("songs_list", songs);
+                service.putExtra("command", "new_instance");
+                bindService(service, connection, BIND_AUTO_CREATE);
+                startService(service);
             }
         });
     }
@@ -254,7 +194,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
-            Log.d("state", "inside service connected!");
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
             mService = binder.getService();
             mBound = true;
@@ -266,7 +205,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            Log.d("state", "inside service disConnected!");
             mService = null;
             mBound = false;
         }
@@ -275,7 +213,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         mBound = false;
-        Log.d("state", "on stop main now");
         super.onStop();
     }
 
@@ -415,6 +352,14 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void showAlertDialog() {
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            int hasWritePremission = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (hasWritePremission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_REQUEST);
+            }
+        }
+
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this, R.style.Theme_MaterialComponents_Dialog_Alert);
         View view = getLayoutInflater().inflate(R.layout.add_song_dialog, null);
 
@@ -434,6 +379,7 @@ public class MainActivity extends AppCompatActivity {
         window.setBackgroundDrawableResource(android.R.color.transparent);
         window.getAttributes().windowAnimations = R.style.DialogAnimation;
         dialog.setView(view);
+        dialog.setCancelable(false);
         dialog.show();
         WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
         dialog.getWindow().setAttributes(params);
@@ -493,6 +439,76 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(pickPicture, CAMERA_PICK_FROM_GALLERY);
             }
         });
+    }
+
+    public void showSongDeleteDialog(final RecyclerView.ViewHolder viewHolder){
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this, R.style.Theme_MaterialComponents_Dialog_Alert);
+        final View view = getLayoutInflater().inflate(R.layout.delete_song_dialog, null);
+
+        Button cancel = view.findViewById(R.id.cancel_button_dialog);
+        Button delete = view.findViewById(R.id.delete_song_button);
+
+        final AlertDialog dialog = builder.create();
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawableResource(android.R.color.transparent);
+        window.getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.setView(view);
+        dialog.setCancelable(false);
+        dialog.show();
+        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+        dialog.getWindow().setAttributes(params);
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                songsAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
+                dialog.dismiss();
+            }
+        });
+
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Song song = (Song) songs.get(viewHolder.getAdapterPosition());
+                final int lastPos = viewHolder.getAdapterPosition();
+                songs.remove(viewHolder.getAdapterPosition());
+                songsAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+                final Intent service = new Intent(MainActivity.this, MusicService.class);
+
+                Snackbar.make(recyclerView, R.string.song_delete_snackbar, Snackbar.LENGTH_LONG).setActionTextColor(getResources().getColor(R.color.colorAccent))
+                        .setAction(R.string.song_delete_cancel, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                songs.add(lastPos, song);
+                                songsAdapter.notifyItemInserted(lastPos);
+                                if (MusicService.sPosition >= lastPos) {
+                                    MusicService.sPosition += 1;;
+                                }
+                                saveSongsToFile();
+                                service.putExtra("songs_list", songs);
+                                service.putExtra("command", "songs_update");
+                                startService(service);
+                            }
+                        }).show();
+
+                if (MusicService.sPosition > lastPos && MusicService.isRunnig) {
+                    MusicService.sPosition -= 1;
+                } else if (MusicService.sPosition == lastPos && MusicService.isRunnig) {
+                    MusicService.sPosition -= 1;
+                    service.putExtra("songs_list", songs);
+                    service.putExtra("command", "songs_update");
+                    startService(service);
+                    service.putExtra("command", "next");
+                    startService(service);
+                }
+                saveSongsToFile();
+                service.putExtra("songs_list", songs);
+                service.putExtra("command", "songs_update");
+                startService(service);
+                dialog.dismiss();
+            }
+        });
+
     }
 
 
