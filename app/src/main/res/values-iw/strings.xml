@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">נגן המוזיקה שלי</string>
+    <string name="app_name">MMPlayer</string>
     <string name="music_player_header">מנגן עכשיו</string>
     <string name="dialog_header">הוסף שיר</string>
     <string name="dialog_song_name">שם השיר</string>

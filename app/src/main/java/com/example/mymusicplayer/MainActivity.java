@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -185,10 +184,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
 
     private ServiceConnection connection = new ServiceConnection() {
         @Override
@@ -510,6 +505,5 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
 
 }

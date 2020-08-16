@@ -34,7 +34,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
     private ImageButton play_pause_btn;
     private SeekBar seekBarDuration;
 
-    private int position;
+//    private int position;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,13 +58,14 @@ public class MusicPlayerActivity extends AppCompatActivity {
         song_current_duration = findViewById(R.id.current_duration);
         seekBarDuration = findViewById(R.id.song_progress);
 
-        position = getIntent().getIntExtra("position",0);
+//        position = getIntent().getIntExtra("position", 0);
         songs = getIntent().getParcelableArrayListExtra("songs_list");
 
         final Intent intent = new Intent(this, MusicService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
     }
+
 
     @Override
     protected void onStart() {
@@ -154,7 +155,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
             else
                 position = position + next_prev;
             service.putExtra("position", position);
-            service.putExtra("songs_list",songs);
+            service.putExtra("songs_list", songs);
             service.putExtra("command", "new_instance");
             bindService(service, connection, Context.BIND_AUTO_CREATE);
         }

@@ -50,25 +50,25 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textColor="@color/colorPrimary"
-            android:textSize="40sp" />
+            android:textSize="25sp" />
 
         <TextView
             android:id="@+id/song_author_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:lines="1"
             android:textColor="@color/colorPrimary"
-            android:textSize="30sp" />
+            android:textSize="20sp" />
 
     </LinearLayout>
 
     <ImageView
         android:id="@+id/song_cover_iv"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_marginTop="10dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="30dp"
+        android:layout_centerInParent="true"
         android:background="@drawable/round_outline"
         android:scaleType="centerCrop" />
 
@@ -76,7 +76,8 @@
         android:id="@+id/progress_lay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/song_cover_iv"
+        android:layout_above="@id/buttons_layout"
+        android:layout_marginBottom="10dp"
         android:layout_marginTop="20dp"
         android:orientation="vertical"
         android:padding="10dp">
@@ -85,7 +86,7 @@
             android:id="@+id/song_progress"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"/>
 
         <TextView
             android:id="@+id/total_duration_tv"
@@ -109,9 +110,9 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/buttons_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/progress_lay"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:gravity="center"
@@ -119,8 +120,8 @@
 
         <ImageButton
             android:id="@+id/prev_btn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_margin="20dp"
             android:background="@android:color/transparent"
             android:clickable="true"
@@ -131,8 +132,8 @@
 
         <ImageButton
             android:id="@+id/play_pause_btn"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_margin="20dp"
             android:background="@android:color/transparent"
             android:clickable="true"
@@ -143,8 +144,8 @@
 
         <ImageButton
             android:id="@+id/next_btn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_margin="20dp"
             android:background="@android:color/transparent"
             android:clickable="true"

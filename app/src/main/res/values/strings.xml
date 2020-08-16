@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MyMusicPlayer</string>
+    <string name="app_name">MMPlayer</string>
     <string name="music_player_header">Now Playing</string>
     <string name="dialog_header">Add Song</string>
     <string name="dialog_song_name">Song Name</string>

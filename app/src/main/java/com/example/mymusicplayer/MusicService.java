@@ -26,6 +26,8 @@ import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.NotificationTarget;
 
 import java.io.IOException;
@@ -136,8 +138,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         PendingIntent musicPlayerPendingIntent = PendingIntent.getService(this, 4, musicPlayerIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.content_layout, musicPlayerPendingIntent);
 
-
-        builder.setCustomBigContentView(remoteViews);
+        builder.setCustomContentView(remoteViews);
         builder.setSmallIcon(R.drawable.logo);
         builder.setOnlyAlertOnce(true);
         builder.setContentIntent(musicPlayerPendingIntent);
@@ -273,15 +274,18 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public void setUpNotificationData(RemoteViews remoteViews, Song song, Notification notification) {
-        remoteViews.setTextViewText(R.id.song_name_notif, song.getName());
-        remoteViews.setTextViewText(R.id.song_author_notif, song.getAuthor_name());
+        remoteViews.setTextViewText(R.id.song_name_notif, song.getName() + " - " + song.getAuthor_name() );
+//        remoteViews.setTextViewText(R.id.song_author_notif, song.getAuthor_name());
         NotificationTarget notificationTarget = new NotificationTarget(
                 MusicService.this,
                 R.id.cover_iv,
                 remoteViews,
                 notification,
                 NOTIF_ID);
-        Glide.with(MusicService.this).asBitmap().load(song.getAlbum_cover()).into(notificationTarget);
+        Glide.with(MusicService.this).asBitmap()
+                .load(song.getAlbum_cover())
+                .apply(RequestOptions.bitmapTransform(new RoundedCorners(20)))
+                .into(notificationTarget);
     }
 
 
