@@ -162,13 +162,13 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 if (!mediaPlayer.isPlaying()) {
                     if (playPauseBtn.isEnabled()) {
                         mediaPlayer.start();
-                        playPauseBtn.setImageResource(R.drawable.ic_pause_btn);
+                        playPauseBtn.setImageResource(R.drawable.pause_btn_selector);
                         remoteViews.setImageViewResource(R.id.play_pause_notif, R.drawable.ic_notif_pause);
                     }
                 } else {
                     if (playPauseBtn.isEnabled()) {
                         mediaPlayer.pause();
-                        playPauseBtn.setImageResource(R.drawable.ic_play_btn);
+                        playPauseBtn.setImageResource(R.drawable.play_btn_selector);
                         remoteViews.setImageViewResource(R.id.play_pause_notif, R.drawable.ic_notif_play);
                     }
                 }
@@ -181,7 +181,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 playSong(false);
                 break;
             case "close":
-                playPauseBtn.setImageResource(R.drawable.ic_play_btn);
+                playPauseBtn.setImageResource(R.drawable.play_btn_selector);
                 isRunnig = false;
 //                sPosition = RecyclerView.NO_POSITION;
                 MainActivity.songsAdapter.notifyDataSetChanged();
@@ -275,7 +275,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public void setUpNotificationData(RemoteViews remoteViews, Song song, Notification notification) {
         remoteViews.setTextViewText(R.id.song_name_notif, song.getName() + " - " + song.getAuthor_name() );
-//        remoteViews.setTextViewText(R.id.song_author_notif, song.getAuthor_name());
         NotificationTarget notificationTarget = new NotificationTarget(
                 MusicService.this,
                 R.id.cover_iv,
@@ -374,7 +373,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                     mediaPlayer.start();
                 duration = mediaPlayer.getDuration();
                 seekBar.setMax(duration / 1000);
-                playPauseBtn.setImageResource(R.drawable.ic_pause_btn);
+                playPauseBtn.setImageResource(R.drawable.pause_btn_selector);
                 playPauseBtn.setEnabled(true);
                 remoteViews.setImageViewResource(R.id.play_pause_notif, R.drawable.ic_notif_pause);
                 songTotalDuration_tv.setText(createTimeLabel(duration));

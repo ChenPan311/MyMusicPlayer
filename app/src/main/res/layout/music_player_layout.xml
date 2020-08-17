@@ -124,11 +124,9 @@
             android:layout_height="30dp"
             android:layout_margin="20dp"
             android:background="@android:color/transparent"
-            android:clickable="true"
-            android:foreground="?android:attr/selectableItemBackground"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_prev_btn"
-            android:tint="@color/colorPrimary" />
+            android:src="@drawable/prev_btn_selector"
+            />
 
         <ImageButton
             android:id="@+id/play_pause_btn"
@@ -136,11 +134,9 @@
             android:layout_height="60dp"
             android:layout_margin="20dp"
             android:background="@android:color/transparent"
-            android:clickable="true"
-            android:foreground="?android:attr/selectableItemBackground"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_play_btn"
-            android:tint="@color/colorPrimary" />
+            android:src="@drawable/play_btn_selector"
+            />
 
         <ImageButton
             android:id="@+id/next_btn"
@@ -148,11 +144,9 @@
             android:layout_height="30dp"
             android:layout_margin="20dp"
             android:background="@android:color/transparent"
-            android:clickable="true"
-            android:foreground="?android:attr/selectableItemBackground"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_next_btn"
-            android:tint="@color/colorPrimary" />
+            android:src="@drawable/next_btn_selector"
+            />
 
 
     </LinearLayout>
