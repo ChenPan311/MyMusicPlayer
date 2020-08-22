@@ -139,6 +139,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         remoteViews.setOnClickPendingIntent(R.id.content_layout, musicPlayerPendingIntent);
 
         builder.setCustomContentView(remoteViews);
+        builder.setCustomBigContentView(remoteViews);
         builder.setSmallIcon(R.drawable.logo);
         builder.setOnlyAlertOnce(true);
         builder.setContentIntent(musicPlayerPendingIntent);

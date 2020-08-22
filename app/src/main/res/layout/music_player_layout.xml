@@ -40,7 +40,7 @@
         android:layout_below="@id/header"
         android:layout_above="@id/song_cover_iv"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="40dp"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -57,7 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:lines="1"
+            android:gravity="center"
             android:textColor="@color/colorPrimary"
             android:textSize="20sp" />
 
@@ -67,7 +67,6 @@
         android:id="@+id/song_cover_iv"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:layout_marginTop="30dp"
         android:layout_centerInParent="true"
         android:background="@drawable/round_outline"
         android:scaleType="centerCrop" />

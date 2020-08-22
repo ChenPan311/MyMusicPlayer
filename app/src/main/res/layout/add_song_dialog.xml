@@ -47,10 +47,10 @@
                     android:id="@+id/song_name_dialog"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLines="1"
                     android:inputType="text"
+                    android:maxLines="1"
                     android:textColor="@color/colorPrimaryDark"
-                    android:textCursorDrawable="@color/colorPrimaryDark"
+                    android:textCursorDrawable="@null"
                     android:textSize="18sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -71,9 +71,10 @@
                     android:id="@+id/song_author_dialog"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLines="1"
                     android:inputType="text"
+                    android:maxLines="1"
                     android:textColor="@color/colorPrimaryDark"
+                    android:textCursorDrawable="@null"
                     android:textSize="18sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -94,9 +95,10 @@
                     android:id="@+id/song_link_dialog"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLines="1"
                     android:inputType="text"
+                    android:maxLines="1"
                     android:textColor="@color/colorPrimaryDark"
+                    android:textCursorDrawable="@null"
                     android:textSize="18sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
