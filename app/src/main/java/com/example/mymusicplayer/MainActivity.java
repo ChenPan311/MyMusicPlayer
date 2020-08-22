@@ -270,6 +270,18 @@ public class MainActivity extends AppCompatActivity {
                 "Twenty One Pilots",
                 "https://upload.wikimedia.org/wikipedia/he/4/48/TOP_Stressed_Out.jpg",
                 "https://www.mboxdrive.com/Stressed%20Out%20by%20twenty%20one%20pilots%20lyrics.mp3"));
+        songs.add(new Song("The Man In Me",
+                "Bob Dylan",
+                "https://images.genius.com/7f81fe234452ddc42d1ba5fd56d1f8ea.500x500x1.jpg",
+                "http://www.syntax.org.il/xtra/bob2.mp3"));
+        songs.add(new Song("Sara",
+                "Bob Dylan",
+                "https://southerncrossreview.org/125/sara-and-bob.jpg",
+                "http://www.syntax.org.il/xtra/bob1.m4a"));
+        songs.add(new Song("One More Cup Of Coffee",
+                "Bob Dylan",
+                "https://m.media-amazon.com/images/I/71fYldgAi0L._SS500_.jpg",
+                "http://www.syntax.org.il/xtra/bob.m4a"));
         songs.add(new Song("Boulevard Of Broken Dreams",
                 "Green Day",
                 "https://upload.wikimedia.org/wikipedia/he/c/c5/Green_Day_-_Boulevard_Of_Broken_Dreams.jpg",
@@ -282,6 +294,10 @@ public class MainActivity extends AppCompatActivity {
                 "NF",
                 "https://upload.wikimedia.org/wikipedia/en/4/42/NF_let_you_down_single_cover.jpg",
                 "https://www.mboxdrive.com/NF%20%E2%80%93%20Let%20You%20Down%20%F0%9F%8E%B5.mp3"));
+        songs.add(new Song("Sara",
+                "Bob Dylan",
+                "https://southerncrossreview.org/125/sara-and-bob.jpg",
+                "http://www.syntax.org.il/xtra/bob1.m4a"));
         songs.add(new Song("Blinding Lights",
                 "The Weekend",
                 "https://upload.wikimedia.org/wikipedia/he/e/e6/The_Weeknd_-_Blinding_Lights.png",
@@ -318,6 +334,10 @@ public class MainActivity extends AppCompatActivity {
                 "Avicii",
                 "https://m.media-amazon.com/images/I/71vfRyK6lGL._SS500_.jpg",
                 "https://www.mboxdrive.com/Avicii%20-%20SOS%20ft.%20Aloe%20Blacc.mp3"));
+        songs.add(new Song("One More Cup Of Coffee",
+                "Bob Dylan",
+                "https://m.media-amazon.com/images/I/71fYldgAi0L._SS500_.jpg",
+                "http://www.syntax.org.il/xtra/bob.m4a"));
         songs.add(new Song("Let You Down",
                 "NF",
                 "https://upload.wikimedia.org/wikipedia/en/4/42/NF_let_you_down_single_cover.jpg",
@@ -330,6 +350,10 @@ public class MainActivity extends AppCompatActivity {
                 "Twenty One Pilots",
                 "https://upload.wikimedia.org/wikipedia/he/4/48/TOP_Stressed_Out.jpg",
                 "https://www.mboxdrive.com/Stressed%20Out%20by%20twenty%20one%20pilots%20lyrics.mp3"));
+        songs.add(new Song("One More Cup Of Coffee",
+                "Bob Dylan",
+                "https://m.media-amazon.com/images/I/71fYldgAi0L._SS500_.jpg",
+                "http://www.syntax.org.il/xtra/bob.m4a"));
         songs.add(new Song("Boulevard Of Broken Dreams",
                 "Green Day",
                 "https://upload.wikimedia.org/wikipedia/he/c/c5/Green_Day_-_Boulevard_Of_Broken_Dreams.jpg",

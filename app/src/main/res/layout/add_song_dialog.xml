@@ -50,6 +50,7 @@
                     android:maxLines="1"
                     android:inputType="text"
                     android:textColor="@color/colorPrimaryDark"
+                    android:textCursorDrawable="@color/colorPrimaryDark"
                     android:textSize="18sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
